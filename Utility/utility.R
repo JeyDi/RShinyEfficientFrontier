@@ -52,6 +52,7 @@ environmentSettings <- function() {
         require(lintr)
         require(styler)
         require(shiny)
+    
     } else {
         # Just load the packages
         require(stats)
