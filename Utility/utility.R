@@ -30,6 +30,7 @@ environmentSettings <- function() {
             || !require(styler)
             || !require(lintr)
             || !require(shiny)
+            || !require(semanticdashboards)
             ) {
         install.packages(c("devtools",
                        "tidyverse",

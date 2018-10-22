@@ -5,29 +5,44 @@
 # Find out more about building applications with Shiny here:
 # 
 #    http://shiny.rstudio.com/
-#
+#    https://rstudio.github.io/shinydashboard/get_started.html
 
 library(shiny)
+library(shinydashboard)
 
-# Define UI for application that draws a histogram
-shinyUI(fluidPage(
+#Edit the main header of the dashboard
+header <- dashboardHeader(
+  title = "Efficient Frontier"
+)
   
-  # Application title
-  titlePanel("Old Faithful Geyser Data"),
   
-  # Sidebar with a slider input for number of bins 
-  sidebarLayout(
-    sidebarPanel(
-       sliderInput("bins",
-                   "Number of bins:",
-                   min = 1,
-                   max = 50,
-                   value = 30)
-    ),
-    
-    # Show a plot of the generated distribution
-    mainPanel(
-       plotOutput("distPlot")
-    )
+#Edit the body of the dashboard
+body <- dashboardBody(
+  
+)
+
+#Edit the sidebar
+sidebar <- dashboardSidebar(
+  sidebarMenu(
+    menuItem("Configuration", tabName = "config",icon = icon("cogs"))
+    , menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard"))
+    , menuItem("Contacts", icon= icon("file-code-o"),href = "https://github.com/JeyDi/RShinyEfficientFrontier")
   )
-))
+)
+
+
+#Function for rendering the page
+dashboardPage(
+  skin = "blue",
+  header,
+  sidebar,
+  body
+)
+
+
+
+
+
+
+
+
