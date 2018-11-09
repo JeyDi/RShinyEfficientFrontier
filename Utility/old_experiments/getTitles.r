@@ -3,15 +3,12 @@ clc <- function() cat(rep("\n", 50))
 clc()
 rm(list = ls())
 
-
-
 library(quantmod)
 library(fPortfolio)
 library(tidyverse)
 library(knitr)
 library(lubridate)
 library(PortfolioAnalytics)
-
 
 # setwd("./")
 # source("./Utility/utility.R")
