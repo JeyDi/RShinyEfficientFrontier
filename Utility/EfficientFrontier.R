@@ -8,6 +8,8 @@ library(PortfolioAnalytics)
 library(plotly)
 
 
+source("./Utility/EfficientFrontierPlot.R")
+
 # environmentSettings()
 
 
@@ -199,7 +201,7 @@ max_return_portfolio_calculation <- function(portfolioReturn_dataframe,checkCons
   return(result)
 }
 
-######################################################################################à
+######################################################################################?
 
 ####TEST FUNCTIONS####
 myTitles <- c("GOOG","AAPL","MSFT","AMZN","INTC")
@@ -235,11 +237,11 @@ riskReturn <- risk_return_calculation(effFrontier)
 
 # corrCov <- corr_cov_calculation(dailyReturns)
 
-
 #Efficient Frontier Plot with the constraints
 #TODO Launch the efficient frontier and plot
 effFrontierConstraint <- efficient_frontier_calculation(monthlyReturns,TRUE,FALSE)
 plot(effFrontierConstraint, c(1, 2, 3))
+
 
 #FUNCTIONS LAUNCH ORIGINAL ORDER
 #'1: GetTitles
@@ -259,7 +261,7 @@ plot(effFrontierConstraint, c(1, 2, 3))
 
 
 
-#################################################################à
+#################################################################?
 
 
 ##prova##
