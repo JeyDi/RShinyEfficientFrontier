@@ -75,24 +75,50 @@ getMontlyReturn <- function(my_titles_dataframe){
   return(result)
 }
 
-#Calculate efficient frontier
-efficient_frontier_calculation <- function(dataset){
+
+#Configurate the solver parameter for the efficient frontier calculation
+define_spec <- function(solver="solveRquadprog",targetRisk=.12){
+  #Create the solver
+  Spec = portfolioSpec()
+  setSolver(Spec) = solver
+  setTargetRisk(Spec) = targetRisk
   
-  effFrontier <- portfolioFrontier(dataset, constraints = "LongOnly")
-  
-  return(effFrontier)
+  return(Spec)
 }
 
-#Calculate frontier weights
-frontier_weights_calculation <- function(effFrontier_dataset,writeCsv = FALSE){
+
+#Set constraint parameters 
+set_constraint <- function(myTitles,minW=.03,maxW=.60){
   
-  frontierWeights <- getWeights.fPORTFOLIO(effFrontier_dataset) # get allocations for each instrument for each point on the efficient frontier
+  constraint_parameters_minW <- paste("minW[1:length(myTitles)]=",minW,sep="")
+  constraint_parameters_maxW <- paste("maxW[1:length(myTitles)]=",maxW,sep="")
+  
+  constraints <- c(constraint_parameters_minW,constraint_parameters_maxW)
+  
+  return(constraints)
+}
+
+
+#Calculate efficient frontier
+efficient_frontier_calculation <- function(portfolioReturnDataset,Spec=portfolioSpec(),constraints="LongOnly"){
+  
+  effFrontier <- portfolioFrontier(portfolioReturnDataset, Spec, constraints = constraints)
+
+  return(effFrontier)
+  
+}
+
+
+#Calculate weights for an input dataset
+weights_calculation <- function(dataset,writeCsv = FALSE,myTitles,datasetName="dataset"){
+  
+  frontierWeights <- getWeights.fPORTFOLIO(dataset) # get allocations for each instrument for each point on the efficient frontier
   colnames(frontierWeights) <- myTitles
   
   if(writeCsv){
-    write.csv(frontierWeights, "frontierWeights.csv")  
+    filename = paste(datasetName,"-Weights.csv",sep="")
+    write.csv(frontierWeights, filename)  
   }
-  
   
   return(frontierWeights)
 }
@@ -112,13 +138,12 @@ risk_return_calculation <- function(effFrontier, writeCsv = FALSE){
 #Calculate correlation and covariance from dataset
 corr_cov_calculation <- function(portfolioReturns, writeCsv = FALSE){
   
-  result <- list()
-  
+
   #Output Correlation
   cor_matrix <- cor(portfolioReturns)
   cov_matrix <- cov(portfolioReturns)
   
-  result <- append(result, c(cor_matrix, cov_matrix))
+  result <- list(cor_matrix, cov_matrix)
   
   if(writeCsv){
     write.csv(cor_matrix, "cormatrix.csv")
@@ -129,6 +154,52 @@ corr_cov_calculation <- function(portfolioReturns, writeCsv = FALSE){
   
 }
 
+
+#Annualize data
+annualize_data_calculation <- function(effFrontier_dataset, writeCsv=FALSE){
+  
+  #Annualize Data
+  riskReturnPoints <- frontierPoints(effFrontier_dataset) # get risk and return values for points on the efficient frontier
+  annualizedPoints <- data.frame(targetRisk=riskReturnPoints[, "targetRisk"] * sqrt(252),
+                                 targetReturn=riskReturnPoints[,"targetReturn"] * 252)
+  
+  if(writeCsv){
+    write.csv(annualizedPoints, "annualizedPoints.csv")
+  }
+  
+  return(annualizedPoints)
+}
+
+
+#Calculate min variance portfolio and weights
+#return a list with sublists
+min_variance_portfolio_calculation <- function(portfolioReturn_dataframe,Spec=portfolioSpec(),constraints="LongOnly"){
+  
+
+  result <- minvariancePortfolio(portfolioReturns, Spec, constraints=constraints)  
+
+  return(result)
+}
+
+#Calculate tangency portfolio 
+#If you want to use the constraint, you have to set the checkConstraint flag = TRUE and also use Spec and constraint as parameters
+tangency_portfolio_calculation <- function(portfolioReturn_dataframe,checkConstraint=FALSE,Spec=portfolioSpec(),constraints="LongOnly"){
+  
+  result <- tangencyPortfolio(portfolioReturns, Spec, constraints=constraints)
+  
+  return(result)
+}
+
+
+#Calculte max return portfolio
+max_return_portfolio_calculation <- function(portfolioReturn_dataframe,checkConstraint=FALSE,Spec=portfolioSpec(),constraints="LongOnly"){
+
+  result <- maxreturnPortfolio(portfolioReturns , Spec, constraints=constraints)  
+
+  return(result)
+}
+
+######################################################################################à
 
 ####TEST FUNCTIONS####
 myTitles <- c("GOOG","AAPL","MSFT","AMZN","INTC")
@@ -151,174 +222,75 @@ effFrontier <- efficient_frontier_calculation(monthlyReturns)
 #'6: Plot Two Asset Frontiers (Long)
 #'7: Plot Monte Carlo Portfolios
 #'8: Plot Sharpe Ratio
+
 plotResult <- plot.fPORTFOLIO(effFrontier, c(1,2,3,4))
+
 grid()
 tailoredFrontierPlot(effFrontier, risk = "Sigma")
 grid()
 
+frontierWeights <- weights_calculation(effFrontier,FALSE,myTitles)
 
-frontierWeights <- frontier_weights_calculation(effFrontier)
 riskReturn <- risk_return_calculation(effFrontier)
 
-corrCov <- corr_cov_calculation(dailyReturns)
+# corrCov <- corr_cov_calculation(dailyReturns)
 
 
-#################STEP TWO: Calculate and Plot Frontier and Efficient Portfolios##############
+#Efficient Frontier Plot with the constraints
+#TODO Launch the efficient frontier and plot
+effFrontierConstraint <- efficient_frontier_calculation(monthlyReturns,TRUE,FALSE)
+plot(effFrontierConstraint, c(1, 2, 3))
+
+#FUNCTIONS LAUNCH ORIGINAL ORDER
+#'1: GetTitles
+#'2: DailyReturns, MonthlyReturns
+#'3: Annualize Data
+#'4: Efficient Frontier without constraints
+#'5: Minimum Variance
+#'6: Tangency Portfolio
+#'P: PLOT: Efficient Frontier without constraints
+#'7: Efficient Frontier with constraints
+#'8: Minimum Variance constraints
+#'9: Tangency Portfolio constraints
+#'10: Max returns constraints
+#'P: PLOT: Efficient Frontier with constraints plot
+#'P: PLOT: Barchart with Tangency Portfolio without constraints
+#'P: PLOT: Barchart with Tangency Portfolio with constraints
 
 
-#Annualize Data
-riskReturnPoints <- frontierPoints(effFrontier) # get risk and return values for points on the efficient frontier
-annualizedPoints <- data.frame(targetRisk=riskReturnPoints[, "targetRisk"] * sqrt(252),
-                               targetReturn=riskReturnPoints[,"targetReturn"] * 252)
-write.csv(annualizedPoints, "annualizedPoints.csv")
-plot(annualizedPoints)
 
-# plot Sharpe ratios for each point on the efficient frontier
-riskFreeRate <- 0.03
-plot((annualizedPoints[,"targetReturn"]-riskFreeRate) / annualizedPoints[,"targetRisk"], xlab="point on efficient frontier", ylab="Sharpe ratio")
+#################################################################à
 
-###grafico che si può togliere###
-#Plot Frontier Weights (Need to transpose matrix first)
-barplot(t(frontierWeights), main="Frontier Weights", col=cm.colors(ncol(frontierWeights)+2), legend=colnames(frontierWeights))
-################################
-#Get Minimum Variance Port, Tangency Port, etc.
-#port <- portfolio.spec(portfolioReturns)
-minvariancePortfolio <- minvariancePortfolio(portfolioReturns, spec=portfolioSpec(), constraints="LongOnly")
-minvariancePortfolio
-tangencyPort <- tangencyPortfolio(portfolioReturns, spec=portfolioSpec(), constraints="LongOnly")
-tangencyPort
-##getweights da capire#################################################
-minvariancePortfolioweights <- getWeights.fPORTFOLIO(minvariancePortfolio)
-tangencyweights <- getWeights.fPORTFOLIO(tangencyPort)
-tangencyweights
-minvariancePortfolioweights
-write.csv(tangencyweights, "tangencyweights.csv")
-write.csv(minvariancePortfolioweights, "minvariancePortfolioweights.csv")
 
 ##prova##
-x <- fPortfolio::getOptimize.fPORTFOLIO(effFrontier)
-x
+# x <- fPortfolio::getOptimize.fPORTFOLIO(effFrontier)
+# x
 
 #Extract value at risk
-covRisk(portfolioReturns, minvariancePortfolioweights)
-varRisk(portfolioReturns, minvariancePortfolioweights, alpha = 0.05)
-cvarRisk(portfolioReturns, minvariancePortfolioweights, alpha = 0.05)
-
-#Plot MVP Weights: Basic Graphs
-barplot(minvariancePortfolioweights, main="Minimum Variance Portfolio Weights", xlab="Asset", ylab="Weight In Portfolio (%)", col=cm.colors(ncol(frontierWeights)+2), legend=colnames(weights))
-pie(minvariancePortfolioweights, col=cm.colors(ncol(frontierWeights)+2))
-
-#ggplot minvariancePortfolioweights Weights
-dfm <- data.frame(minvariancePortfolioweights)
-assets <- colnames(frontierWeights)
-
-##grafici con plotly##
-minvariancePortfolioweightsGraph <-plot_ly(dfm, x=assets, y=minvariancePortfolioweights*100, type = "bar",
-                            marker = list(color = 'green',
-                      width = 1.5)) %>%
-        layout(title="Minimum Variance Portfolio Optimal Weights",
-               xaxis=list(title="Assets"),
-               yaxis=list(title="Weight (%)"))
-minvariancePortfolioweightsGraph
-
-dft <- data.frame(tangencyweights)
-assets <- colnames(frontierWeights)
-
-TangencyPortfolioWeightsGraph <- plot_ly(dft, x=assets, y=tangencyweights*100, type = "bar",
-                marker = list(color = "yellow",
-                      width = 1.5)) %>%
-  layout(title="Tangency Portfolio Weights",
-         xaxis=list(title="Assets"),
-         yaxis=list(title="Weight (%)"))
-TangencyPortfolioWeightsGraph
-
-##grafico con ggplot##
-#ggplot(data=df, aes(x=assets, y=minvariancePortfolioweights, fill=assets)) +
-  #geom_ba(stat="identity", position=position_dodge(),colour="brown") +
-  #geom_text(aes(label=sprintf("%.02f %%",minvariancePortfolioweights*100)),
-  #          position=position_dodge(width=0.9), vjust=-0.25, check_overlap = TRUE) +
-  #ggtitle("Minimum Variance Portfolio Optimal Weights")+ theme(plot.title = element_text(hjust = 0.5)) +
-  #labs(x= "Assets", y = "Weight (%)")
-
-##inserimento constraints##
-Spec = portfolioSpec()
-setSolver(Spec) = "solveRquadprog"
-setTargetRisk(Spec) = .12
-constraints <- c("minW[1:length(myTitles)]=.03","maxW[1:length(myTitles)]=.60")
-
-effFrontierShort <- portfolioFrontier(portfolioReturns, Spec, constraints = constraints)
-weights <- getWeights.fPORTFOLIO(effFrontierShort)
-##weights prova##
-weightsprova <- as.data.frame(weights)
-#################
-write.csv(weights, "weightsShort.csv")
-colnames(weights) <- myTitles
-effFrontierShort
-
-plot(effFrontierShort, c(1, 2, 3))
-
-effPortShort <- minvariancePortfolio(portfolioReturns, Spec, constraints=constraints)
-optWeights <- getWeights.fPORTFOLIO(effPortShort)
-tanPortShort <- tangencyPortfolio(portfolioReturns, Spec, constraints=constraints)
-tanWeights <- getWeights.fPORTFOLIO(tanPortShort)
-maxR <- maxreturnPortfolio(portfolioReturns , Spec, constraints=constraints)
-maxWeights <- getWeights.fPORTFOLIO(maxR)
-tanPortShort
-maxR
+# covRisk(portfolioReturns, minvariancePortfolioweights)
+# varRisk(portfolioReturns, minvariancePortfolioweights, alpha = 0.05)
+# cvarRisk(portfolioReturns, minvariancePortfolioweights, alpha = 0.05)
 
 
-dfmSHORT <- data.frame(optWeights)
-assets <- colnames(frontierWeights)
-
-minvariancePortfolioweightsGraphSHORT <-plot_ly(dfmSHORT, x=assets, y=optWeights*100, type = "bar",
-                                           marker = list(color = 'green',
-                                                         width = 1.5)) %>%
-  layout(title="Minimum Variance Portfolio Optimal Weights SHORT",
-         xaxis=list(title="Assets"),
-         yaxis=list(title="Weight (%)"))
-minvariancePortfolioweightsGraphSHORT
-
-dftShort <- data.frame(tanWeights)
-assets <- colnames(frontierWeights)
-
-colors <- c("brown", "yellow", "red", "black", "blue")
-TangencyPortfolioWeightsGraphSHORT <- plot_ly(dftShort, x=assets, y=tanWeights*100, type = "bar",
-                                         marker = list(color = "brown",
-                                                       width = 1.5)) %>%
-  layout(title="Tangency Portfolio Weights SHORT",
-         xaxis=list(title="Assets"),
-         yaxis=list(title="Weight (%)"))
-TangencyPortfolioWeightsGraphSHORT
-
-###prova altro codice###
-frontierPlot(effFrontier, risk = "Sigma", auto = "FALSE")
-tangencyLines(effFrontier, col = "orange")
-singleAssetPoints(effFrontier, col = "blue", cex=1.0, pch=20, auto = "False", lwd=2)
-grid()
-tailoredFrontierPlot(effFrontier, risk = "Sigma")
-grid()
-effFrontierShortwithName <- tailoredFrontierPlot(effFrontierShort, risk = "Sigma")
-effFrontierShortwithName
-###fine prova altro codice###
-
-##autenticazione plotly##
-Sys.setenv("plotly_username"="simone.violin")
-Sys.setenv("plotly_api_key"="030OQDiNzeofpQEcbPkR")
 #######
+#TODO:Tentativo di fare con plotly il grafico della frontiera efficiente
 ##grafico plotly eff frontier##
-SpecProva <- portfolio.spec(effFrontierShort)
-create.EfficientFrontier(portfolioReturns, SpecProva, type = "mean-StdDev")
-weightsprovagrafico <- plot_ly(weightsprova, x=assets, y=tanWeights*100, type = "scatter",
-                               mode="lines",               
-                               marker = list(color = "brown",
-                                                            width = 1.5)) %>%
-  layout(title="Tangency Portfolio Weights SHORT",
-         xaxis=list(title="Assets"),
-         yaxis=list(title="Weight (%)"))
-weightsprovagrafico
+
+# SpecProva <- portfolio.spec(effFrontierShort)
+# create.EfficientFrontier(portfolioReturns, SpecProva, type = "mean-StdDev")
+# weightsprovagrafico <- plot_ly(weightsprova, x=assets, y=tanWeights*100, type = "scatter",
+#                                mode="lines",               
+#                                marker = list(color = "brown",
+#                                                             width = 1.5)) %>%
+#   layout(title="Tangency Portfolio Weights SHORT",
+#          xaxis=list(title="Assets"),
+#          yaxis=list(title="Weight (%)"))
+# weightsprovagrafico
+
+
 ##########
 ##prova settargetreturn##
-SpecReturn = portfolioSpec()
-setSolver(SpecReturn) = "solveRquadprog"
-setTargetReturn(SpecReturn) = .5
-constraintsReturn <- c("minW[1:length(myTitles)]=.03","maxW[1:length(myTitles)]=.60")
+# SpecReturn = portfolioSpec()
+# setSolver(SpecReturn) = "solveRquadprog"
+# setTargetReturn(SpecReturn) = .5
+# constraintsReturn <- c("minW[1:length(myTitles)]=.03","maxW[1:length(myTitles)]=.60")
