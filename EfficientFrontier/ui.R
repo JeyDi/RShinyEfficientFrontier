@@ -18,6 +18,19 @@ header <- dashboardHeader(
   
 #Edit the body of the dashboard
 body <- dashboardBody(
+  tabItems(
+    tabItem(
+      tabName = "config",
+      fluidRow(
+        box(
+          title = "Select Number of tickers", status = "primary", solidHeader = TRUE, collapsible = TRUE,
+          "Choose a number of title that you want to have", br(), "Insert the names of the titles inside the input box",
+          sliderInput("slider", "Slider input:", 1, 10, 1),
+          textInput("ticker", "Ticker name:")
+          )
+      )
+    )
+  )
   
 )
 

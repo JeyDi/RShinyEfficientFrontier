@@ -231,7 +231,7 @@ monthlyReturns <- getMontlyReturn(titles)
 
 effFrontier <- efficient_frontier_calculation(monthlyReturns)
 
-
+riskReturn <- risk_return_calculation(effFrontier)
 # plot frontier
 #'Options
 #'1: Plot Efficient Frontier
@@ -263,11 +263,9 @@ minimumVariance <- min_variance_portfolio_calculation(monthlyReturns,Spec = spec
 
 tangencyPortfolio <- tangency_portfolio_calculation(monthlyReturns,Spec = spec, constraints = constraint)
 
+effFrontierConstraintWeights <- weights_calculation(effFrontierConstraint,myTitles = myTitles, datasetName = "effFrontierConstraintWeights")
 
 
-frontierWeights <- weights_calculation(effFrontier,FALSE,myTitles)
-
-riskReturn <- risk_return_calculation(effFrontier)
 
 # corrCov <- corr_cov_calculation(dailyReturns)
 
