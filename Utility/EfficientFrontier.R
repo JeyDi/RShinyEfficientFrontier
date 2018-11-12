@@ -178,7 +178,7 @@ annualize_data_calculation <- function(effFrontier_dataset, writeCsv=FALSE){
 min_variance_portfolio_calculation <- function(portfolioReturn_dataframe,Spec=portfolioSpec(),constraints="LongOnly"){
   
 
-  result <- minvariancePortfolio(portfolioReturns, Spec, constraints=constraints)  
+  result <- minvariancePortfolio(portfolioReturn_dataframe, Spec, constraints=constraints)  
 
   return(result)
 }
@@ -187,7 +187,7 @@ min_variance_portfolio_calculation <- function(portfolioReturn_dataframe,Spec=po
 #If you want to use the constraint, you have to set the checkConstraint flag = TRUE and also use Spec and constraint as parameters
 tangency_portfolio_calculation <- function(portfolioReturn_dataframe,checkConstraint=FALSE,Spec=portfolioSpec(),constraints="LongOnly"){
   
-  result <- tangencyPortfolio(portfolioReturns, Spec, constraints=constraints)
+  result <- tangencyPortfolio(portfolioReturn_dataframe, Spec, constraints=constraints)
   
   return(result)
 }
@@ -196,7 +196,7 @@ tangency_portfolio_calculation <- function(portfolioReturn_dataframe,checkConstr
 #Calculte max return portfolio
 max_return_portfolio_calculation <- function(portfolioReturn_dataframe,checkConstraint=FALSE,Spec=portfolioSpec(),constraints="LongOnly"){
 
-  result <- maxreturnPortfolio(portfolioReturns , Spec, constraints=constraints)  
+  result <- maxreturnPortfolio(portfolioReturn_dataframe , Spec, constraints=constraints)  
 
   return(result)
 }
@@ -204,6 +204,24 @@ max_return_portfolio_calculation <- function(portfolioReturn_dataframe,checkCons
 ######################################################################################?
 
 ####TEST FUNCTIONS####
+
+#FUNCTIONS LAUNCH ORIGINAL ORDER
+#'1: GetTitles
+#'2: DailyReturns, MonthlyReturns
+#'3: Annualize Data
+#'4: Efficient Frontier without constraints
+#'5: Minimum Variance
+#'6: Tangency Portfolio
+#'P: PLOT: Efficient Frontier without constraints
+#'7: Calculate contraints and spec
+#'8: Efficient Frontier with constraints
+#'9: Minimum Variance constraints
+#'10: Tangency Portfolio constraints
+#'11: Max returns constraints
+#'P: PLOT: Efficient Frontier with constraints plot
+#'P: PLOT: Barchart with Tangency Portfolio without constraints
+#'P: PLOT: Barchart with Tangency Portfolio with constraints
+
 myTitles <- c("GOOG","AAPL","MSFT","AMZN","INTC")
 source = "yahoo"
 
@@ -231,33 +249,29 @@ grid()
 tailoredFrontierPlot(effFrontier, risk = "Sigma")
 grid()
 
+annualized_data <- annualize_data_calculation(effFrontier)
+
+spec <- define_spec()
+constraint <- set_constraint(myTitles)
+
+#Efficient Frontier Plot with the constraints
+#TODO Launch the efficient frontier and plot
+effFrontierConstraint <- efficient_frontier_calculation(monthlyReturns,Spec = spec, constraints = constraint)
+plot(effFrontierConstraint, c(1, 2, 3))
+
+minimumVariance <- min_variance_portfolio_calculation(monthlyReturns,Spec = spec, constraints = constraint)
+
+tangencyPortfolio <- tangency_portfolio_calculation(monthlyReturns,Spec = spec, constraints = constraint)
+
+
+
 frontierWeights <- weights_calculation(effFrontier,FALSE,myTitles)
 
 riskReturn <- risk_return_calculation(effFrontier)
 
 # corrCov <- corr_cov_calculation(dailyReturns)
 
-#Efficient Frontier Plot with the constraints
-#TODO Launch the efficient frontier and plot
-effFrontierConstraint <- efficient_frontier_calculation(monthlyReturns,TRUE,FALSE)
-plot(effFrontierConstraint, c(1, 2, 3))
 
-
-#FUNCTIONS LAUNCH ORIGINAL ORDER
-#'1: GetTitles
-#'2: DailyReturns, MonthlyReturns
-#'3: Annualize Data
-#'4: Efficient Frontier without constraints
-#'5: Minimum Variance
-#'6: Tangency Portfolio
-#'P: PLOT: Efficient Frontier without constraints
-#'7: Efficient Frontier with constraints
-#'8: Minimum Variance constraints
-#'9: Tangency Portfolio constraints
-#'10: Max returns constraints
-#'P: PLOT: Efficient Frontier with constraints plot
-#'P: PLOT: Barchart with Tangency Portfolio without constraints
-#'P: PLOT: Barchart with Tangency Portfolio with constraints
 
 
 
