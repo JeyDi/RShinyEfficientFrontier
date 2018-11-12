@@ -25,9 +25,18 @@ body <- dashboardBody(
         box(
           title = "Select Number of tickers", status = "primary", solidHeader = TRUE, collapsible = TRUE,
           "Choose a number of title that you want to have", br(), "Insert the names of the titles inside the input box",
-          sliderInput("slider", "Slider input:", 1, 10, 1),
-          textInput("ticker", "Ticker name:")
+          sliderInput("input_slider_tickerNumber", "Slider input:", 1, 10, 1),
+          textInput("input_text_tickerName", "Ticker name:"),
+          dateRangeInput("input_date_tickerDates", 
+                         "Date range",
+                         # Default data from past three months
+                         start = Sys.Date() - 90, 
+                         end = Sys.Date()),
+          actionButton("button_tickerGenerate","Generate"),
+          br(),
+          uiOutput("output_stock")
           )
+        
       )
     )
   )

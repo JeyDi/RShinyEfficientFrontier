@@ -8,19 +8,34 @@
 #
 
 library(shiny)
+library(shinydashboard)
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
    
-  output$distPlot <- renderPlot({
+  # create a reactive item
+  nStock <- reactive({
     
-    # generate bins based on input$bins from ui.R
-    x    <- faithful[, 2] 
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-    
-    # draw the histogram with the specified number of bins
-    hist(x, breaks = bins, col = 'darkgray', border = 'white')
+    if(input$button_tickerGenerate)
+    {
+      
+      isolate( 
+        lapply(1:input$nInputs, function(i)
+        {
+          fluidRow(
+            column(width = 10,offset = 1, wellPanel(h4(paste("No.", i,"Input Values")),
+                                                    textInput(paste("tInput",i), "Ticker",""),
+                                                    numericInput(paste("min",i),"Min",value=NA),
+                                                    numericInput(paste("max",i),"Max",value=NA),
+                                                    numericInput(paste("expect",i),"Expected Return",value=NA))))
+          
+        })
+      )    
+    }
     
   })
+  
+  
+  
   
 }
