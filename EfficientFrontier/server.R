@@ -9,29 +9,50 @@
 
 library(shiny)
 library(shinydashboard)
+print(paste("Default Server working directory:",getwd()))
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
    
   # create a reactive item
-  nStock <- reactive({
+  nTickers <- reactive({
     
     if(input$button_tickerGenerate)
     {
       
       isolate( 
-        lapply(1:input$nInputs, function(i)
+        box(
+          title = "Tickers", status = "primary", solidHeader = TRUE,
+        lapply(1:input$input_slider_tickerNumber, function(i)
         {
-          fluidRow(
-            column(width = 10,offset = 1, wellPanel(h4(paste("No.", i,"Input Values")),
-                                                    textInput(paste("tInput",i), "Ticker",""),
-                                                    numericInput(paste("min",i),"Min",value=NA),
-                                                    numericInput(paste("max",i),"Max",value=NA),
-                                                    numericInput(paste("expect",i),"Expected Return",value=NA))))
-          
+          textInput(paste("tInput",i), paste("Ticker", i,"Name"),"")
+          # fluidRow(
+          #   column(width = 10,offset = 1, wellPanel(
+          #                       # h4(paste("No.", i,"Input Values")),
+          #                       textInput(paste("tInput",i), "Ticker Name","")
+            #                     # ,numericInput(paste("min",i),"Min",value=NA)
+            #                     # ,numericInput(paste("max",i),"Max",value=NA)
+            #                     # ,numericInput(paste("expect",i),"Expected Return",value=NA)
+            #                     )
+            #        )
+            # )
         })
-      )    
+        )
+      )
     }
+  })
+  
+  #create output item for ticker insertion
+  output$output_stock <- renderUI({
+    
+    if(input$input_slider_tickerNumber < 2)
+    {
+      output$output_stock_result <- renderText({"Please Input the Number of Assets Greater Than 2!"})
+      return()
+    }
+    output$output_stock_result <- renderText({"Click Generate Button to Start!"})
+    
+    nTickers()  
     
   })
   

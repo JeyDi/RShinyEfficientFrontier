@@ -10,6 +10,9 @@
 library(shiny)
 library(shinydashboard)
 
+setwd("../")
+print(paste("Default UI working directory:",getwd()))
+
 #Edit the main header of the dashboard
 header <- dashboardHeader(
   title = "Efficient Frontier"
@@ -34,9 +37,10 @@ body <- dashboardBody(
                          end = Sys.Date()),
           actionButton("button_tickerGenerate","Generate"),
           br(),
+          verbatimTextOutput("output_stock_result"),
+          br(),
           uiOutput("output_stock")
           )
-        
       )
     )
   )
