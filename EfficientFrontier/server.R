@@ -7,13 +7,14 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
-library(shinydashboard)
+
 print(paste("Default Server working directory:",getwd()))
+
+
 
 # Define server logic required to draw a histogram
 function(input, output, session) {
-   
+  
   # create a reactive item
   nTickers <- reactive({
     
@@ -23,20 +24,20 @@ function(input, output, session) {
       isolate( 
         box(
           title = "Tickers", status = "primary", solidHeader = TRUE,
-        lapply(1:input$input_slider_tickerNumber, function(i)
-        {
-          textInput(paste("tInput",i), paste("Ticker", i,"Name"),"")
-          # fluidRow(
-          #   column(width = 10,offset = 1, wellPanel(
-          #                       # h4(paste("No.", i,"Input Values")),
-          #                       textInput(paste("tInput",i), "Ticker Name","")
+          lapply(1:input$input_slider_tickerNumber, function(i)
+          {
+            textInput(paste("tInput",i), paste("Ticker", i,"Name"),"")
+            # fluidRow(
+            #   column(width = 10,offset = 1, wellPanel(
+            #                       # h4(paste("No.", i,"Input Values")),
+            #                       textInput(paste("tInput",i), "Ticker Name","")
             #                     # ,numericInput(paste("min",i),"Min",value=NA)
             #                     # ,numericInput(paste("max",i),"Max",value=NA)
             #                     # ,numericInput(paste("expect",i),"Expected Return",value=NA)
             #                     )
             #        )
             # )
-        })
+          })
         )
       )
     }
@@ -57,6 +58,9 @@ function(input, output, session) {
   })
   
   
-  
-  
 }
+
+
+  
+  
+  

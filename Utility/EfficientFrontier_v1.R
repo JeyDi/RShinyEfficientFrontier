@@ -1,20 +1,20 @@
-# library(fPortfolio)
-# library(quantmod)
-# library(caTools)
-# library(dplyr)
-# library(PerformanceAnalytics)
-# library(ggplot2)
-# library(PortfolioAnalytics)
-# library(plotly)
+library(fPortfolio)
+library(quantmod)
+library(caTools)
+library(dplyr)
+library(PerformanceAnalytics)
+library(ggplot2)
+library(PortfolioAnalytics)
+library(plotly)
 
 
-
+#source("./Utility/EfficientFrontierPlot.R")
 
 # environmentSettings()
 
 
 ######################STEP ONE: Create Returns Time Series#########################################
-print("EfficientFrontier file opened")
+
 
 #Download and get the titles
 getTitles <- function(myTitle,source,start.date=as.Date("2017-09-09"),end.date=as.Date("2018-09-09")){
@@ -105,7 +105,7 @@ set_constraint <- function(myTitles,minW=.03,maxW=.60){
 efficient_frontier_calculation <- function(portfolioReturnDataset,Spec=portfolioSpec(),constraints="LongOnly"){
   
   effFrontier <- portfolioFrontier(portfolioReturnDataset, Spec, constraints = constraints)
-
+  
   return(effFrontier)
   
 }
@@ -140,7 +140,7 @@ risk_return_calculation <- function(effFrontier, writeCsv = FALSE){
 #Calculate correlation and covariance from dataset
 corr_cov_calculation <- function(portfolioReturns, writeCsv = FALSE){
   
-
+  
   #Output Correlation
   cor_matrix <- cor(portfolioReturns)
   cov_matrix <- cov(portfolioReturns)
@@ -177,9 +177,9 @@ annualize_data_calculation <- function(effFrontier_dataset, writeCsv=FALSE){
 #return a list with sublists
 min_variance_portfolio_calculation <- function(portfolioReturn_dataframe,Spec=portfolioSpec(),constraints="LongOnly"){
   
-
+  
   result <- minvariancePortfolio(portfolioReturn_dataframe, Spec, constraints=constraints)  
-
+  
   return(result)
 }
 
@@ -195,9 +195,9 @@ tangency_portfolio_calculation <- function(portfolioReturn_dataframe,checkConstr
 
 #Calculte max return portfolio
 max_return_portfolio_calculation <- function(portfolioReturn_dataframe,checkConstraint=FALSE,Spec=portfolioSpec(),constraints="LongOnly"){
-
+  
   result <- maxreturnPortfolio(portfolioReturn_dataframe , Spec, constraints=constraints)  
-
+  
   return(result)
 }
 
@@ -210,7 +210,7 @@ max_return_portfolio_calculation <- function(portfolioReturn_dataframe,checkCons
 #'2: DailyReturns, MonthlyReturns
 #'3: Annualize Data
 #'4: Efficient Frontier without constraints
-#'5: Minimum Variance
+#'5: Minim umVariance
 #'6: Tangency Portfolio
 #'P: PLOT: Efficient Frontier without constraints
 #'7: Calculate contraints and spec
@@ -308,6 +308,3 @@ effFrontierConstraintWeights <- weights_calculation(effFrontierConstraint,myTitl
 # setSolver(SpecReturn) = "solveRquadprog"
 # setTargetReturn(SpecReturn) = .5
 # constraintsReturn <- c("minW[1:length(myTitles)]=.03","maxW[1:length(myTitles)]=.60")
-
-
-print("EfficientFrontier file loaded")

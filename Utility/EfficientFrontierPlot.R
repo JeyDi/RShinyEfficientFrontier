@@ -1,3 +1,5 @@
+print("Efficient Frontier Plot opened")
+
 #Annualize Data Plto
 annualize_data_plot <- function(annualizedPoints){
   
@@ -79,3 +81,6 @@ tangency_portfolio_plotly <- function(tangencyWeights, frontierWeights){
   
   return(tangencyPortfolioWeightsGraph)
 }
+
+
+print("Efficient Frontier Plot loaded")

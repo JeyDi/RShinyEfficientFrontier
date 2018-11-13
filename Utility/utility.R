@@ -5,6 +5,8 @@
 # Environment settings ---
 # Enviroment General Settings for the project
 # call this function in a script to load all the require settings
+print("Utility file opened")
+
 environmentSettings <- function() {
     # Clean the console and the workspace everytime launch the script
     rm(list = ls())
@@ -25,23 +27,33 @@ environmentSettings <- function() {
                !require(tidyverse)
             || !require(plotly)
             || !require(devtools)
-            || !require(lubridate)
             || !require(readr)
             || !require(styler)
             || !require(lintr)
             || !require(shiny)
-            || !require(semanticdashboards)
-            ) {
+            || !require(shinydashboard)
+            || !require(PerformanceAnalytics)
+            || !require(PortfolioAnalytics)
+            || !require(quantmod)
+            || !require(fPortfolio)
+            || !require(caTools)
+        ) {
+      
         install.packages(c("devtools",
                        "tidyverse",
                        "plotly",
                        "readr",
                        "proxy",
-                       "lubridate",
                        "readr",
                        "lintr",
                        "styler",
-                       "shiny"
+                       "shiny",
+                       "shinydashboard",
+                       "PerformanceAnalytics",
+                       "PortfolioAnalytics",
+                       "quantmod",
+                       "fPortfolio",
+                       "caTools"
                        ))
         require(stats)
         require(tidyverse)
@@ -49,10 +61,15 @@ environmentSettings <- function() {
         require(plotly)
         require(proxy)
         require(readr)
-        require(lubridate)
         require(lintr)
         require(styler)
         require(shiny)
+        require(shinydashboard)
+        require(PerformanceAnalytics)
+        require(PortfolioAnalytics)
+        require(quantmod)
+        require(fPortfolio)
+        require(caTools)
     
     } else {
         # Just load the packages
@@ -62,10 +79,15 @@ environmentSettings <- function() {
         require(plotly)
         require(proxy)
         require(readr)
-        require(lubridate)
         require(lintr)
         require(styler)
         require(shiny)
+        require(shinydashboard)
+        require(PerformanceAnalytics)
+        require(PortfolioAnalytics)
+        require(quantmod)
+        require(fPortfolio)
+        require(caTools)
     }
 
     cat("Utility packages loading completed\n")
@@ -254,3 +276,5 @@ exportToCsv <- function(dataset, dir, filename, extension, separator, na, decima
         write.table(dataset, file = path, row.names = FALSE,sep = separator, na = na, dec= decimal,fileEncoding = "UTF-8")
     }
 }
+
+print("Utility file loaded")
